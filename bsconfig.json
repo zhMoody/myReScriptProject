@@ -1,0 +1,23 @@
+{
+  "name": "my-res-app",
+  "reason": {
+    "react-jsx": 3
+  },
+  "sources": {
+    "dir": "src",
+    "subdirs": true
+  },
+  "bsc-flags": ["-bs-super-errors"],
+  "package-specs": [
+    {
+      "module": "es6",
+      "in-source": true
+    }
+  ],
+  "suffix": ".bs.js",
+  "gentypeconfig": {
+    "language": "typescript"
+  },
+
+  "bs-dependencies": ["@rescript/react","animate.css"]
+}
