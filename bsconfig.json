@@ -19,5 +19,5 @@
     "language": "typescript"
   },
 
-  "bs-dependencies": ["@rescript/react","animate.css"]
+  "bs-dependencies": ["@rescript/react"]
 }

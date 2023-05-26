@@ -1,43 +1,36 @@
-type select = {
-  id: string,
-  text: string,
-}
-let selectItems: array<select> = [
-  {
-    id: "1",
-    text: "全部",
-  },
-  {
-    id: "2",
-    text: "进行中",
-  },
-  {
-    id: "3",
-    text: "已完成",
-  },
-]
+type status = [#a | #b | #c]
 
 @react.component
 let make = () => {
-  let (todos, setTodos) = React.useState(() => TodoItem.defaultTodos)
-  let (stTtem, _) = React.useState(() => selectItems)
-  let (idx, setIdx) = React.useState(() => "1")
-  let (value, setValue) = React.useState(_ => "")
-  let addItem = todoItem => setTodos(item => item->Belt.Array.concat([todoItem]))
-  let deleteItem = id => setTodos(item => item->Js.Array2.filter(i => i.id !== id))
-  let chanceChecked = id =>
-    setTodos(item =>
-      item->Js.Array2.map(i => {
-        if i.id === id {
-          {
-            ...i,
-            check: !i.check,
+  let useArray = (arr: array<TodoItem.todo>) => {
+    let (item, setItem) = React.useState(_ => arr)
+    let addArr = a => {
+      setItem(prev => prev->Js.Array2.concat([a]))
+    }
+    let deleteItem = (idx: int) => {
+      setItem(prev => prev->Js.Array2.spliceInPlace(~pos=idx, ~remove=1, ~add=[]))
+    }
+    let updateItem = id => {
+      let tempArr = item->Js.Array2.copy
+      setItem(_ =>
+        tempArr->Js.Array2.map(i => {
+          if i.id === id {
+            {
+              ...i,
+              check: !i.check,
+            }
+          } else {
+            i
           }
-        } else {
-          i
-        }
-      })
-    )
+        })
+      )
+    }
+    (item, addArr, deleteItem, updateItem)
+  }
+  let (data, addItem, deleteItem, updateItem) = useArray(TodoItem.defaultTodos)
+  let (stTtem, _) = React.useState(() => [#a, #b, #c])
+  let (idx, setIdx) = React.useState(() => #a)
+  let (value, setValue) = React.useState(_ => "")
   <div className="initBox ">
     <Header />
     <div className="iptbox">
@@ -68,37 +61,50 @@ let make = () => {
       </button>
     </div>
     <ul className="selectBox">
-      {React.array(
-        stTtem->Js.Array2.map(s =>
+      {stTtem
+      ->Js.Array2.mapi((item, i) => {
+        switch item {
+        | #a =>
           <li
-            key={s.id}
-            className={if s.id == idx {
-              "active"
-            } else {
-              ""
-            }}
+            key={i->Belt.Int.toString}
+            className={idx == #a ? "active" : ""}
             onClick={_ => {
-              switch s.id {
-              | "2" => setIdx(_ => s.id)
-              | "3" => setIdx(_ => s.id)
-              | _ => setIdx(_ => "1")
-              }
+              setIdx(_ => #a)
             }}>
-            {s.text->React.string}
+            {"全部"->React.string}
           </li>
-        ),
-      )}
+        | #b =>
+          <li
+            key={i->Belt.Int.toString}
+            className={idx == #b ? "active" : ""}
+            onClick={_ => {
+              setIdx(_ => #b)
+            }}>
+            {"已完成"->React.string}
+          </li>
+        | #c =>
+          <li
+            key={i->Belt.Int.toString}
+            className={idx == #c ? "active" : ""}
+            onClick={_ => {
+              setIdx(_ => #c)
+            }}>
+            {"未完成"->React.string}
+          </li>
+        }
+      })
+      ->React.array}
     </ul>
     <div className="content">
-      {todos
+      {data
       ->Belt.Array.keep(({check}) => {
         switch idx {
-        | "2" => !check
-        | "3" => check
+        | #c => !check
+        | #b => check
         | _ => true
         }
       })
-      ->Js.Array2.map(item => <TodoItem key={item.id} item deleteItem chanceChecked />)
+      ->Js.Array2.mapi((item, i) => <TodoItem key={item.id} item deleteItem updateItem i />)
       ->React.array}
     </div>
   </div>

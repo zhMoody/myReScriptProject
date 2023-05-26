@@ -5,7 +5,7 @@ type todo = {
 }
 let defaultTodos: array<todo> = []
 @react.component
-let make = (~item, ~deleteItem, ~chanceChecked) => {
+let make = (~item, ~deleteItem, ~updateItem, ~i) => {
   let className = if item.check {
     "item reminder"
   } else {
@@ -13,8 +13,8 @@ let make = (~item, ~deleteItem, ~chanceChecked) => {
   }
   <div
     className="item font_Style animate__animated animate__bounceIn"
-    onClick={_ => chanceChecked(item.id)}>
+    onClick={_ => updateItem(item.id)}>
     <h4 className> {item.text->React.string} </h4>
-    <span onClick={_ => deleteItem(item.id)}> {"x"->React.string} </span>
+    <span onClick={_ => deleteItem(i)}> {"x"->React.string} </span>
   </div>
 }

@@ -7,31 +7,59 @@ import * as Js_math from "rescript/lib/es6/js_math.js";
 import * as TodoItem from "../../components/TodoItem/TodoItem.bs.js";
 import * as Belt_Array from "rescript/lib/es6/belt_Array.js";
 
-var selectItems = [
-  {
-    id: "1",
-    text: "全部"
-  },
-  {
-    id: "2",
-    text: "进行中"
-  },
-  {
-    id: "3",
-    text: "已完成"
-  }
-];
-
 function TaskTracker(Props) {
-  var match = React.useState(function () {
-        return TodoItem.defaultTodos;
-      });
-  var setTodos = match[1];
+  var useArray = function (arr) {
+    var match = React.useState(function () {
+          return arr;
+        });
+    var setItem = match[1];
+    var item = match[0];
+    var addArr = function (a) {
+      Curry._1(setItem, (function (prev) {
+              return prev.concat([a]);
+            }));
+    };
+    var deleteItem = function (idx) {
+      Curry._1(setItem, (function (prev) {
+              return prev.splice(idx, 1);
+            }));
+    };
+    var updateItem = function (id) {
+      var tempArr = item.slice();
+      Curry._1(setItem, (function (param) {
+              return tempArr.map(function (i) {
+                          if (i.id === id) {
+                            return {
+                                    id: i.id,
+                                    check: !i.check,
+                                    text: i.text
+                                  };
+                          } else {
+                            return i;
+                          }
+                        });
+            }));
+    };
+    return [
+            item,
+            addArr,
+            deleteItem,
+            updateItem
+          ];
+  };
+  var match = useArray(TodoItem.defaultTodos);
+  var updateItem = match[3];
+  var deleteItem = match[2];
+  var addItem = match[1];
   var match$1 = React.useState(function () {
-        return selectItems;
+        return [
+                "a",
+                "b",
+                "c"
+              ];
       });
   var match$2 = React.useState(function () {
-        return "1";
+        return "a";
       });
   var setIdx = match$2[1];
   var idx = match$2[0];
@@ -40,33 +68,6 @@ function TaskTracker(Props) {
       });
   var setValue = match$3[1];
   var value = match$3[0];
-  var addItem = function (todoItem) {
-    Curry._1(setTodos, (function (item) {
-            return Belt_Array.concat(item, [todoItem]);
-          }));
-  };
-  var deleteItem = function (id) {
-    Curry._1(setTodos, (function (item) {
-            return item.filter(function (i) {
-                        return i.id !== id;
-                      });
-          }));
-  };
-  var chanceChecked = function (id) {
-    Curry._1(setTodos, (function (item) {
-            return item.map(function (i) {
-                        if (i.id === id) {
-                          return {
-                                  id: i.id,
-                                  check: !i.check,
-                                  text: i.text
-                                };
-                        } else {
-                          return i;
-                        }
-                      });
-          }));
-  };
   return React.createElement("div", {
               className: "initBox "
             }, React.createElement(Header.make, {}), React.createElement("div", {
@@ -89,7 +90,7 @@ function TaskTracker(Props) {
                             console.log("请输入待办事项！！！");
                             return ;
                           }
-                          addItem({
+                          Curry._1(addItem, {
                                 id: String(Js_math.random_int(0, 1000000)),
                                 check: false,
                                 text: value
@@ -100,45 +101,55 @@ function TaskTracker(Props) {
                         })
                     }, "添加")), React.createElement("ul", {
                   className: "selectBox"
-                }, match$1[0].map(function (s) {
-                      return React.createElement("li", {
-                                  key: s.id,
-                                  className: s.id === idx ? "active" : "",
-                                  onClick: (function (param) {
-                                      var match = s.id;
-                                      switch (match) {
-                                        case "2" :
-                                            return Curry._1(setIdx, (function (param) {
-                                                          return s.id;
-                                                        }));
-                                        case "3" :
-                                            return Curry._1(setIdx, (function (param) {
-                                                          return s.id;
-                                                        }));
-                                        default:
-                                          return Curry._1(setIdx, (function (param) {
-                                                        return "1";
-                                                      }));
-                                      }
-                                    })
-                                }, s.text);
+                }, match$1[0].map(function (item, i) {
+                      if (item === "b") {
+                        return React.createElement("li", {
+                                    key: String(i),
+                                    className: idx === "b" ? "active" : "",
+                                    onClick: (function (param) {
+                                        Curry._1(setIdx, (function (param) {
+                                                return "b";
+                                              }));
+                                      })
+                                  }, "已完成");
+                      } else if (item === "c") {
+                        return React.createElement("li", {
+                                    key: String(i),
+                                    className: idx === "c" ? "active" : "",
+                                    onClick: (function (param) {
+                                        Curry._1(setIdx, (function (param) {
+                                                return "c";
+                                              }));
+                                      })
+                                  }, "未完成");
+                      } else {
+                        return React.createElement("li", {
+                                    key: String(i),
+                                    className: idx === "a" ? "active" : "",
+                                    onClick: (function (param) {
+                                        Curry._1(setIdx, (function (param) {
+                                                return "a";
+                                              }));
+                                      })
+                                  }, "全部");
+                      }
                     })), React.createElement("div", {
                   className: "content"
                 }, Belt_Array.keep(match[0], (function (param) {
                           var check = param.check;
-                          switch (idx) {
-                            case "2" :
-                                return !check;
-                            case "3" :
-                                return check;
-                            default:
-                              return true;
+                          if (idx === "b") {
+                            return check;
+                          } else if (idx === "c") {
+                            return !check;
+                          } else {
+                            return true;
                           }
-                        })).map(function (item) {
+                        })).map(function (item, i) {
                       return React.createElement(TodoItem.make, {
                                   item: item,
                                   deleteItem: deleteItem,
-                                  chanceChecked: chanceChecked,
+                                  updateItem: updateItem,
+                                  i: i,
                                   key: item.id
                                 });
                     })));
@@ -147,7 +158,6 @@ function TaskTracker(Props) {
 var make = TaskTracker;
 
 export {
-  selectItems ,
   make ,
 }
 /* react Not a pure module */

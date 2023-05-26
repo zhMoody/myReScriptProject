@@ -8,18 +8,19 @@ var defaultTodos = [];
 function TodoItem(Props) {
   var item = Props.item;
   var deleteItem = Props.deleteItem;
-  var chanceChecked = Props.chanceChecked;
+  var updateItem = Props.updateItem;
+  var i = Props.i;
   var className = item.check ? "item reminder" : "item";
   return React.createElement("div", {
               className: "item font_Style animate__animated animate__bounceIn",
               onClick: (function (param) {
-                  Curry._1(chanceChecked, item.id);
+                  Curry._1(updateItem, item.id);
                 })
             }, React.createElement("h4", {
                   className: className
                 }, item.text), React.createElement("span", {
                   onClick: (function (param) {
-                      Curry._1(deleteItem, item.id);
+                      Curry._1(deleteItem, i);
                     })
                 }, "x"));
 }
